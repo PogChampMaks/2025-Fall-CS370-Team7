@@ -1,0 +1,13 @@
+com\example\lostandfound\repository\ItemRepository.class
+com\example\lostandfound\config\DataLoader.class
+com\example\lostandfound\model\Item.class
+com\example\lostandfound\service\ItemService.class
+com\example\lostandfound\repository\UserRepository.class
+com\example\lostandfound\model\User.class
+com\example\lostandfound\config\SecurityConfig.class
+com\example\lostandfound\LostAndFoundApplication.class
+com\example\lostandfound\controller\AuthController.class
+com\example\lostandfound\controller\HomeController.class
+com\example\lostandfound\model\ItemStatus.class
+com\example\lostandfound\controller\ItemController.class
+com\example\lostandfound\service\UserService.class
