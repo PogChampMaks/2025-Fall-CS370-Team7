@@ -308,6 +308,7 @@ npm run build
 Refer to:
 - Frontend README: See `Code/frontend/README.md`
 - API Documentation: Visit `http://localhost:8080/` (home page)
+- More info: See `Code/Quick_REFERENCE.md`
 
 ## 🎓 For the Instructor
 
