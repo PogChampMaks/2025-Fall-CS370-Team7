@@ -2,6 +2,13 @@
 
 A complete web application for helping your campus community find and return lost items.
 
+## 📋 Project Overview
+
+**Backend:** Spring Boot 3.1.5 REST API with H2 Database  
+**Frontend:** React 18 with React Router  
+**Authentication:** HTTP Basic Auth  
+**Database:** H2 (in-memory, perfect for development)
+
 ## 🎯 Features
 
 ### Backend (Spring Boot REST API)
@@ -19,6 +26,34 @@ A complete web application for helping your campus community find and return los
 - ✅ Post new items form (authenticated)
 - ✅ Login/logout with test credentials
 - ✅ Home page with API documentation
+
+# LostAndFound (backend prototype)
+
+This is a small Spring Boot backend prototype for the Lost & Found app. It includes a simple username/password authentication system, an H2 embedded database, and two temporary accounts created at startup.
+
+Temporary credentials (created automatically at startup):
+
+- Admin: username=`admin`, password=`adminpass` (ROLE_ADMIN)
+- User:  username=`user`, password=`userpass`  (ROLE_USER)
+
+How to run
+
+1. Make sure you have Java installed (JDK 17+). JDK was installed earlier in this environment.
+2. From the project root run:
+
+```powershell
+mvn spring-boot:run
+```
+
+3. Access the H2 console at http://localhost:8080/h2-console (JDBC URL: `jdbc:h2:mem:lostfound`, user `sa`, no password)
+
+4. Login endpoint: POST to `http://localhost:8080/api/auth/login` with JSON body:
+
+```json
+{ "username": "admin", "password": "adminpass" }
+```
+
+On success it returns basic user info and role.
 
 ## 🚀 Quick Start (2 minutes)
 
@@ -49,10 +84,12 @@ npm start
 Admin:
   Username: admin
   Password: adminpass
+  Role: ROLE_ADMIN
 
 User:
   Username: user
   Password: userpass
+  Role: ROLE_USER
 ```
 
 ## 📱 Using the App
@@ -189,6 +226,56 @@ Get-Process -Name java | Stop-Process -Force
 - Try test credentials: `user:userpass`
 - Check backend console for error messages
 
+## 📝 Testing the Application
+
+### Manual Testing Workflow
+
+1. **Login**
+   - Go to `http://localhost:3000/login`
+   - Use `user:userpass`
+   - Should redirect to `/post-item`
+
+2. **Post an Item**
+   - Fill in form with item details
+   - Click "Post Item"
+   - Should see confirmation
+
+3. **Browse Items**
+   - Go to `/items`
+   - Filter by LOST/FOUND
+   - Click item to view details
+
+4. **View Details**
+   - Click any item card
+   - See full description and contact info
+
+## 🚀 Deployment
+
+### Local Testing
+Your app is already running locally! Share `http://localhost:3000` with classmates.
+
+### Deploy Backend to Cloud
+```bash
+# Package as executable JAR
+mvn clean package
+
+# Deploy to Heroku, AWS, or Google Cloud
+# See documentation for each service
+```
+
+### Deploy Frontend
+```bash
+# Build optimized version
+cd frontend
+npm run build
+
+# Deploy build folder to:
+# - Vercel (easiest)
+# - Netlify
+# - GitHub Pages
+# - AWS S3 + CloudFront
+```
+
 ## 📚 Next Steps (Optional Enhancements)
 
 - [ ] Add image upload for items
@@ -200,36 +287,29 @@ Get-Process -Name java | Stop-Process -Force
 - [ ] Add user profiles
 - [ ] Add review/rating system
 
-## 🚀 Deployment
+## 🔒 Security Notes
 
-### Backend (Heroku)
-```bash
-# Create Procfile and push to Heroku
-git push heroku main
-```
+- ✅ Passwords are BCrypt hashed
+- ✅ HTTP Basic Auth for API requests
+- ✅ CSRF protection disabled (development mode)
+- ✅ H2 console open for development only
+- ⚠️ For production: Use HTTPS, secure password storage, implement OAuth2
 
-### Frontend (Vercel)
-```bash
-npm install -g vercel
-vercel
-```
+## 📖 Further Reading
 
-## 📝 Assignment Completion
+- [Spring Boot Docs](https://spring.io/projects/spring-boot)
+- [React Docs](https://react.dev)
+- [React Router Docs](https://reactrouter.com)
+- [Bootstrap Docs](https://getbootstrap.com/docs/5.3/)
+- [Axios Docs](https://axios-http.com/docs)
 
-- ✅ Tech stack chosen: Spring Boot + React
-- ✅ Backend project created with Maven
-- ✅ Database models implemented (User, Item)
-- ✅ REST API built with 7 item endpoints
-- ✅ Authentication system implemented
-- ✅ Frontend React app created
-- ✅ Navigation and routing setup
-- ✅ Item listing with filters
-- ✅ Post item functionality
-- ⚠️ Tests (in progress)
-- ⚠️ Image upload (optional)
-- ⚠️ Claim workflow (optional)
+## ❓ Questions?
 
-## 🎓 For Your Instructor
+Refer to:
+- Frontend README: See `Code/frontend/README.md`
+- API Documentation: Visit `http://localhost:8080/` (home page)
+
+## 🎓 For the Instructor
 
 This project demonstrates:
 1. **Backend Development** - Spring Boot REST API with authentication
@@ -237,9 +317,3 @@ This project demonstrates:
 3. **Frontend Development** - React with routing and state
 4. **Full-Stack Integration** - Frontend consuming APIs
 5. **Software Engineering** - Layered architecture
-
-See `QUICKSTART.md` for detailed instructions.
-
----
-
-**Built with ❤️ for CS370**
