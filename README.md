@@ -1,5 +1,6 @@
 # 370-2025-fall-team7
-﻿# Lost and Found CSUSM APP add-on
+# Lost and Found CSUSM APP add-on
+
 
 A application for CSUSM students that is a part of the CSUSM mobile app whose purpose is to make finding and managing of lost items easier for faculty and students. On the app there will be another icon representing the lost and found where only CSUSM students and faculty can post images, manage, and claim lost items in a simple, user-friendly interface. This add-on allows users to see, via images, if something they lost has been found in an efficent way. Verification will still be needed to prevent false claims. 
 
