@@ -27,7 +27,7 @@ A complete web application for helping your campus community find and return los
 - ✅ Login/logout with test credentials
 - ✅ Home page with API documentation
 
-# LostAndFound (backend prototype)
+## LostAndFound (backend prototype)
 
 This is a small Spring Boot backend prototype for the Lost & Found app. It includes a simple username/password authentication system, an H2 embedded database, and two temporary accounts created at startup.
 
