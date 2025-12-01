@@ -6,6 +6,7 @@ import ItemList from './pages/ItemList';
 import ItemDetail from './pages/ItemDetail';
 import PostItem from './pages/PostItem';
 import Login from './pages/Login';
+import Messages from './pages/Messages';
 import './App.css';
 
 function App() {
@@ -44,11 +45,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/items" element={<ItemList />} />
-        <Route path="/items/:id" element={<ItemDetail />} />
+        <Route path="/items/:id" element={<ItemDetail user={user} />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route 
           path="/post-item" 
           element={user ? <PostItem user={user} /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/messages" 
+          element={user ? <Messages user={user} /> : <Navigate to="/login" />} 
         />
       </Routes>
     </Router>

@@ -35,6 +35,11 @@ function Navigation({ user, onLogout }) {
                 </Link>
               </li>
               <li className="nav-item">
+                <Link to="/messages" className="nav-link">
+                  💬 Messages
+                </Link>
+              </li>
+              <li className="nav-item">
                 <span className="nav-user">👤 {user.username}</span>
               </li>
               <li className="nav-item">

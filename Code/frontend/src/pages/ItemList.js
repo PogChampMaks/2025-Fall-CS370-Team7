@@ -125,6 +125,19 @@ function ItemList() {
                       <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : 'status-found'}`}>
                         {item.status === 'LOST' ? '🔴 LOST' : '🟢 FOUND'}
                       </span>
+                      {item.isClaimed && (
+                        <span style={{ 
+                          display: 'inline-block',
+                          marginLeft: '10px',
+                          padding: '3px 8px',
+                          backgroundColor: '#28a745',
+                          color: 'white',
+                          borderRadius: '4px',
+                          fontSize: '12px'
+                        }}>
+                          ✓ Claimed
+                        </span>
+                      )}
                     </div>
                     <span style={{ fontSize: '12px', color: '#999' }}>
                       {new Date(item.createdAt).toLocaleDateString()}

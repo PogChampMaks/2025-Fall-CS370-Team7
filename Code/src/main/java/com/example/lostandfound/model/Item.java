@@ -35,6 +35,13 @@ public class Item {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean isClaimed = false; // true if item has been claimed/returned
+
+    private String claimedBy; // username of person who claimed the item
+
+    private LocalDateTime claimedAt; // when item was marked as claimed
+
     public Item() {}
 
     public Item(String title, String description, ItemStatus status, String location, LocalDate date, String contactInfo, String imageRef, String createdBy) {
@@ -78,4 +85,13 @@ public class Item {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isClaimed() { return isClaimed; }
+    public void setClaimed(boolean claimed) { isClaimed = claimed; }
+
+    public String getClaimedBy() { return claimedBy; }
+    public void setClaimedBy(String claimedBy) { this.claimedBy = claimedBy; }
+
+    public LocalDateTime getClaimedAt() { return claimedAt; }
+    public void setClaimedAt(LocalDateTime claimedAt) { this.claimedAt = claimedAt; }
 }

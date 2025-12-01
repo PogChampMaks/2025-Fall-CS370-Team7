@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function ItemDetail() {
+function ItemDetail({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showMessageBox, setShowMessageBox] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     fetchItem();
@@ -23,6 +26,57 @@ function ItemDetail() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!messageContent.trim()) return;
+
+    setSending(true);
+    try {
+      const authToken = localStorage.getItem('auth');
+      await axios.post('/api/messages', {
+        receiverUsername: item.createdBy,
+        itemId: item.id,
+        content: messageContent
+      }, {
+        headers: { 'Authorization': `Basic ${authToken}` }
+      });
+
+      setMessageContent('');
+      setShowMessageBox(false);
+      alert('Message sent successfully!');
+    } catch (err) {
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const markAsClaimed = async () => {
+    try {
+      const authToken = localStorage.getItem('auth');
+      await axios.put(`/api/items/${id}/claim`, {}, {
+        headers: { 'Authorization': `Basic ${authToken}` }
+      });
+      fetchItem();
+      alert('Item marked as claimed/returned!');
+    } catch (err) {
+      alert('Failed to mark as claimed');
+    }
+  };
+
+  const markAsUnclaimed = async () => {
+    try {
+      const authToken = localStorage.getItem('auth');
+      await axios.put(`/api/items/${id}/unclaim`, {}, {
+        headers: { 'Authorization': `Basic ${authToken}` }
+      });
+      fetchItem();
+      alert('Item marked as available again');
+    } catch (err) {
+      alert('Failed to unmark as claimed');
     }
   };
 
@@ -62,6 +116,19 @@ function ItemDetail() {
             <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : 'status-found'}`}>
               {item.status === 'LOST' ? '🔴 LOST' : '🟢 FOUND'}
             </span>
+            {item.isClaimed && (
+              <span style={{ 
+                display: 'inline-block',
+                marginLeft: '10px',
+                padding: '5px 10px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}>
+                ✓ Claimed/Returned
+              </span>
+            )}
           </div>
           <button onClick={() => navigate('/items')} className="btn-secondary">
             Back
@@ -112,7 +179,77 @@ function ItemDetail() {
             <span className="detail-meta-label">⏰ Posted:</span>
             <span> {new Date(item.createdAt).toLocaleString()}</span>
           </div>
+          {item.isClaimed && item.claimedAt && (
+            <div className="detail-meta-item">
+              <span className="detail-meta-label">✓ Claimed:</span>
+              <span> {new Date(item.claimedAt).toLocaleString()}</span>
+            </div>
+          )}
         </div>
+
+        {/* Action buttons */}
+        {user && (
+          <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {user.username !== item.createdBy && !item.isClaimed && (
+              <button 
+                className="btn-primary"
+                onClick={() => setShowMessageBox(!showMessageBox)}
+              >
+                💬 Contact Owner
+              </button>
+            )}
+            
+            {user.username === item.createdBy && (
+              <>
+                {!item.isClaimed ? (
+                  <button 
+                    className="btn-primary"
+                    onClick={markAsClaimed}
+                    style={{ backgroundColor: '#28a745' }}
+                  >
+                    ✓ Mark as Claimed/Returned
+                  </button>
+                ) : (
+                  <button 
+                    className="btn-secondary"
+                    onClick={markAsUnclaimed}
+                  >
+                    Reopen Item
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Message box */}
+        {showMessageBox && user && user.username !== item.createdBy && (
+          <div style={{ marginTop: '20px', padding: '20px', border: '2px solid #007bff', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+            <h3>Send a Message to {item.createdBy}</h3>
+            <form onSubmit={sendMessage}>
+              <textarea
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                placeholder="Write your message here..."
+                rows="4"
+                style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ddd', marginBottom: '10px' }}
+                required
+              />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn-primary" disabled={sending}>
+                  {sending ? 'Sending...' : 'Send Message'}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-secondary"
+                  onClick={() => setShowMessageBox(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         <div style={{ marginTop: '20px', padding: '15px', background: '#e7f3ff', borderRadius: '4px' }}>
           <p>

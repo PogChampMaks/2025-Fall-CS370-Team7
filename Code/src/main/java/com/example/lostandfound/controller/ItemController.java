@@ -94,4 +94,51 @@ public class ItemController {
         itemService.deleteItem(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/claim")
+    public ResponseEntity<?> markAsClaimed(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        }
+        try {
+            Item item = itemService.getItemById(id)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+            
+            // Only the creator can mark as claimed
+            if (!item.getCreatedBy().equals(principal.getName())) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only the item owner can mark it as claimed"));
+            }
+
+            item.setClaimed(true);
+            item.setClaimedAt(java.time.LocalDateTime.now());
+            Item updated = itemService.updateItem(id, item);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}/unclaim")
+    public ResponseEntity<?> markAsUnclaimed(@PathVariable Long id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        }
+        try {
+            Item item = itemService.getItemById(id)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+            
+            // Only the creator can unmark as claimed
+            if (!item.getCreatedBy().equals(principal.getName())) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only the item owner can unmark it"));
+            }
+
+            item.setClaimed(false);
+            item.setClaimedBy(null);
+            item.setClaimedAt(null);
+            Item updated = itemService.updateItem(id, item);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
