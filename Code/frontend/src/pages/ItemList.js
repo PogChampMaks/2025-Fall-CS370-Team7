@@ -13,6 +13,7 @@ function ItemList() {
 
   useEffect(() => {
     fetchItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const fetchItems = async () => {
@@ -82,7 +83,7 @@ function ItemList() {
       {!loading && items.length === 0 && (
         <div className="no-items">
           <p>No items found. Try adjusting your filters or be the first to post an item!</p>
-          <Link to="/login" className="btn-primary" style={{ marginTop: '20px' }}>
+          <Link to="/post-item" className="btn-primary" style={{ marginTop: '20px' }}>
             Post an Item
           </Link>
         </div>

@@ -20,8 +20,8 @@ function Login({ onLogin }) {
         password
       });
 
-      // Create auth token from credentials
-      const authToken = btoa(`${username}:${password}`);
+      // Create auth token with Basic prefix
+      const authToken = 'Basic ' + btoa(`${username}:${password}`);
       
       onLogin(response.data, authToken);
       navigate('/post-item');

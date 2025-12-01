@@ -11,19 +11,42 @@ function Messages({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [typingTimeout, setTypingTimeout] = useState(null);
 
   useEffect(() => {
     fetchMessages();
     fetchUnreadCount();
-  }, []);
+
+    // Poll for new messages every 3 seconds
+    const messageInterval = setInterval(() => {
+      fetchMessages();
+      fetchUnreadCount();
+      if (selectedItem) {
+        fetchConversation(selectedItem);
+        checkOtherUserTyping();
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(messageInterval);
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+    };
+  }, [selectedItem]);
 
   const fetchMessages = async () => {
     try {
-      const authToken = localStorage.getItem('auth');
-      const response = await axios.get('/api/messages/received', {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
-      setMessages(response.data);
+      const [receivedRes, sentRes] = await Promise.all([
+        axios.get('/api/messages/received'),
+        axios.get('/api/messages/sent')
+      ]);
+      
+      // Combine received and sent messages
+      const allMessages = [...receivedRes.data, ...sentRes.data];
+      setMessages(allMessages);
       setLoading(false);
     } catch (err) {
       setError('Failed to load messages');
@@ -33,10 +56,7 @@ function Messages({ user }) {
 
   const fetchUnreadCount = async () => {
     try {
-      const authToken = localStorage.getItem('auth');
-      const response = await axios.get('/api/messages/unread/count', {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
+      const response = await axios.get('/api/messages/unread/count');
       setUnreadCount(response.data.count);
     } catch (err) {
       console.error('Failed to fetch unread count');
@@ -45,10 +65,7 @@ function Messages({ user }) {
 
   const fetchConversation = async (itemId) => {
     try {
-      const authToken = localStorage.getItem('auth');
-      const response = await axios.get(`/api/messages/item/${itemId}`, {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
+      const response = await axios.get(`/api/messages/item/${itemId}`);
       setConversation(response.data);
       setSelectedItem(itemId);
     } catch (err) {
@@ -56,12 +73,52 @@ function Messages({ user }) {
     }
   };
 
+  const checkOtherUserTyping = async () => {
+    if (!selectedItem || conversation.length === 0) return;
+    
+    try {
+      const otherUser = conversation.find(m => 
+        m.senderUsername !== user.username
+      )?.senderUsername || conversation.find(m =>
+        m.receiverUsername !== user.username
+      )?.receiverUsername;
+      
+      if (otherUser) {
+        const response = await axios.get(`/api/messages/typing/${selectedItem}/${otherUser}`);
+        setOtherUserTyping(response.data.isTyping);
+      }
+    } catch (err) {
+      // Silently fail - typing status is not critical
+    }
+  };
+
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+    
+    if (!selectedItem) return;
+    
+    // Send typing status to backend
+    axios.post('/api/messages/typing', { itemId: selectedItem })
+      .catch(err => console.error('Failed to send typing status'));
+    
+    // Clear existing timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    
+    // Stop sending typing status after 2 seconds of no typing
+    const timeout = setTimeout(() => {
+      // Typing stopped
+    }, 2000);
+    
+    setTypingTimeout(timeout);
+  };
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedItem) return;
 
     try {
-      const authToken = localStorage.getItem('auth');
       const recipientUsername = conversation.find(m => 
         m.senderUsername !== user.username
       )?.senderUsername;
@@ -70,11 +127,12 @@ function Messages({ user }) {
         receiverUsername: recipientUsername,
         itemId: selectedItem,
         content: newMessage
-      }, {
-        headers: { 'Authorization': `Basic ${authToken}` }
       });
 
       setNewMessage('');
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
       fetchConversation(selectedItem);
     } catch (err) {
       setError('Failed to send message');
@@ -83,10 +141,7 @@ function Messages({ user }) {
 
   const markAsRead = async (messageId) => {
     try {
-      const authToken = localStorage.getItem('auth');
-      await axios.put(`/api/messages/${messageId}/read`, {}, {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
+      await axios.put(`/api/messages/${messageId}/read`);
       fetchMessages();
       fetchUnreadCount();
     } catch (err) {
@@ -130,6 +185,10 @@ function Messages({ user }) {
           ) : (
             Object.entries(groupedMessages).map(([itemId, msgs]) => {
               const latestMsg = msgs[0];
+              const otherUser = latestMsg.senderUsername === user.username 
+                ? latestMsg.receiverUsername 
+                : latestMsg.senderUsername;
+              
               return (
                 <div
                   key={itemId}
@@ -145,10 +204,11 @@ function Messages({ user }) {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                     <strong>Item #{itemId}</strong>
-                    {!latestMsg.isRead && <span style={{ color: '#dc3545', fontSize: '12px' }}>● NEW</span>}
+                    {!latestMsg.isRead && latestMsg.receiverUsername === user.username && 
+                      <span style={{ color: '#dc3545', fontSize: '12px' }}>● NEW</span>}
                   </div>
                   <p style={{ margin: '5px 0', fontSize: '14px', color: '#666' }}>
-                    From: {latestMsg.senderUsername}
+                    Chat with: {otherUser}
                   </p>
                   <p style={{ margin: 0, fontSize: '12px', color: '#999' }}>
                     {new Date(latestMsg.sentAt).toLocaleString()}
@@ -203,6 +263,24 @@ function Messages({ user }) {
                     <div>{msg.content}</div>
                   </div>
                 ))}
+                
+                {otherUserTyping && (
+                  <div style={{
+                    marginBottom: '15px',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    backgroundColor: '#e9ecef',
+                    maxWidth: '70px',
+                    display: 'flex',
+                    gap: '4px',
+                    alignItems: 'center',
+                    height: '40px'
+                  }}>
+                    <span className="typing-dot"></span>
+                    <span className="typing-dot" style={{ animationDelay: '0.2s' }}></span>
+                    <span className="typing-dot" style={{ animationDelay: '0.4s' }}></span>
+                  </div>
+                )}
               </div>
 
               <form onSubmit={sendMessage}>
@@ -210,7 +288,7 @@ function Messages({ user }) {
                   <input
                     type="text"
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={handleTyping}
                     placeholder="Type your message..."
                     style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                   />

@@ -9,11 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/messages")
 public class MessageController {
     private final MessageService messageService;
+    
+    // Store typing status: "username:itemId" -> timestamp
+    private static final ConcurrentHashMap<String, Long> typingStatus = new ConcurrentHashMap<>();
+    private static final long TYPING_TIMEOUT = 3000; // 3 seconds
 
     public MessageController(MessageService messageService) {
         this.messageService = messageService;
@@ -105,5 +110,37 @@ public class MessageController {
         }
         messageService.markAllAsRead(principal.getName());
         return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PostMapping("/typing")
+    public ResponseEntity<?> setTypingStatus(@RequestBody Map<String, Object> payload, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        }
+        
+        Long itemId = Long.valueOf(payload.get("itemId").toString());
+        String key = principal.getName() + ":" + itemId;
+        typingStatus.put(key, System.currentTimeMillis());
+        
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/typing/{itemId}/{username}")
+    public ResponseEntity<?> getTypingStatus(@PathVariable Long itemId, @PathVariable String username) {
+        String key = username + ":" + itemId;
+        Long lastTyping = typingStatus.get(key);
+        
+        boolean isTyping = false;
+        if (lastTyping != null) {
+            long elapsed = System.currentTimeMillis() - lastTyping;
+            isTyping = elapsed < TYPING_TIMEOUT;
+            
+            // Clean up old entries
+            if (!isTyping) {
+                typingStatus.remove(key);
+            }
+        }
+        
+        return ResponseEntity.ok(Map.of("isTyping", isTyping));
     }
 }

@@ -14,6 +14,7 @@ function ItemDetail({ user }) {
 
   useEffect(() => {
     fetchItem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchItem = async () => {
@@ -35,13 +36,10 @@ function ItemDetail({ user }) {
 
     setSending(true);
     try {
-      const authToken = localStorage.getItem('auth');
       await axios.post('/api/messages', {
         receiverUsername: item.createdBy,
         itemId: item.id,
         content: messageContent
-      }, {
-        headers: { 'Authorization': `Basic ${authToken}` }
       });
 
       setMessageContent('');
@@ -56,10 +54,7 @@ function ItemDetail({ user }) {
 
   const markAsClaimed = async () => {
     try {
-      const authToken = localStorage.getItem('auth');
-      await axios.put(`/api/items/${id}/claim`, {}, {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
+      await axios.put(`/api/items/${id}/claim`);
       fetchItem();
       alert('Item marked as claimed/returned!');
     } catch (err) {
@@ -69,10 +64,7 @@ function ItemDetail({ user }) {
 
   const markAsUnclaimed = async () => {
     try {
-      const authToken = localStorage.getItem('auth');
-      await axios.put(`/api/items/${id}/unclaim`, {}, {
-        headers: { 'Authorization': `Basic ${authToken}` }
-      });
+      await axios.put(`/api/items/${id}/unclaim`);
       fetchItem();
       alert('Item marked as available again');
     } catch (err) {

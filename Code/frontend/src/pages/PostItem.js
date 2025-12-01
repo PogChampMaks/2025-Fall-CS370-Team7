@@ -68,10 +68,8 @@ function PostItem({ user }) {
     formData.append('file', selectedFile);
 
     try {
-      const authToken = localStorage.getItem('auth');
       const response = await axios.post('/api/items/upload-image', formData, {
         headers: {
-          'Authorization': `Basic ${authToken}`,
           'Content-Type': 'multipart/form-data'
         }
       });
@@ -95,17 +93,9 @@ function PostItem({ user }) {
         imageFileName = await uploadImage();
       }
 
-      // Get auth token from localStorage
-      const authToken = localStorage.getItem('auth');
-      
       const response = await axios.post('/api/items', {
         ...formData,
         imageRef: imageFileName
-      }, {
-        headers: {
-          'Authorization': `Basic ${authToken}`,
-          'Content-Type': 'application/json'
-        }
       });
 
       navigate(`/items/${response.data.id}`);

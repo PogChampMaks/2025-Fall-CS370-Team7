@@ -16,16 +16,16 @@ public class DataLoader {
     @Bean
     CommandLineRunner load(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                User admin = new User("admin", passwordEncoder.encode("adminpass"), "ROLE_ADMIN", "admin@example.com");
-                userRepository.save(admin);
-                logger.info("Created temp admin: username=admin password=adminpass");
+            if (userRepository.findByUsername("user1").isEmpty()) {
+                User user1 = new User("user1", passwordEncoder.encode("userpass"), "ROLE_USER", "user1@example.com");
+                userRepository.save(user1);
+                logger.info("Created temp user: username=user1 password=userpass");
             }
 
-            if (userRepository.findByUsername("user").isEmpty()) {
-                User user = new User("user", passwordEncoder.encode("userpass"), "ROLE_USER", "user@example.com");
-                userRepository.save(user);
-                logger.info("Created temp user: username=user password=userpass");
+            if (userRepository.findByUsername("user2").isEmpty()) {
+                User user2 = new User("user2", passwordEncoder.encode("userpass"), "ROLE_USER", "user2@example.com");
+                userRepository.save(user2);
+                logger.info("Created temp user: username=user2 password=userpass");
             }
         };
     }

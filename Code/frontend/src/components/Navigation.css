@@ -1,5 +1,5 @@
 .navbar {
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #A72608 0%, #090C02 100%);
   color: white;
   padding: 1rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -53,8 +53,8 @@
 }
 
 .nav-link:hover {
-  color: #f0f0f0;
-  border-bottom-color: white;
+  color: #E6EED6;
+  border-bottom-color: #E6EED6;
 }
 
 .nav-link-primary {
@@ -65,8 +65,8 @@
 }
 
 .nav-link-primary:hover {
-  background: white;
-  color: #667eea;
+  background: #E6EED6;
+  color: #A72608;
   border-bottom-color: transparent;
 }
 
@@ -87,8 +87,8 @@
 }
 
 .nav-logout:hover {
-  background: white;
-  color: #667eea;
+  background: #E6EED6;
+  color: #A72608;
 }
 
 @media (max-width: 768px) {
