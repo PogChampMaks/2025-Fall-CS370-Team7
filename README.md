@@ -22,36 +22,36 @@ A application for CSUSM students that is a part of the CSUSM mobile app whose pu
 
 ###  1. Login with CSUSM username and Password
 
-<img src = "screenshots/cs370ss/Login.png" alt = "Login Page" width = "200"/>
+<img src = "screenshots/cs370ss/Login.png" alt = "Login Page" width = "450"/>
 
 ---
 
 ###  2. Visit the Dashboard and choose an option 
 
-<img src = "screenshots/cs370ss/mainDashboard.png" alt = "Main Dashboard"  width = "200"/>
+<img src = "screenshots/cs370ss/mainDashboard.png" alt = "Main Dashboard"  width = "450"/>
 
 ---
 
 ###  3. View the Item list and sort based off of Found or Lost items
 
-<img src = "screenshots/cs370ss/itemlist.png" alt = "Item List" width = "200"/>
+<img src = "screenshots/cs370ss/itemlist.png" alt = "Item List" width = "450"/>
 
 ---
 
 ###  4. Message owner of the post if the item is one you lost
 
-<img src = "screenshots/cs370ss/viewItem..png" alt = "Item" width = "200"/>
-<img src = "screenshots/cs370ss/messageUsers.png" alt = "DM" width = "200"/>
+<img src = "screenshots/cs370ss/viewItem..png" alt = "Item" width = "450"/>
+<img src = "screenshots/cs370ss/messageUsers.png" alt = "DM" width = "450"/>
 
 ---
 
 
 ###  5. Make a post of an item you have lost or found
 
-<img src = "screenshots/cs370ss/postItem.png" alt = "Post" width = "200"/>
+<img src = "screenshots/cs370ss/postItem.png" alt = "Post" width = "450"/>
 
 ---
 
 ### 6. If a post was made by a faculty member, then fill out the forum for verification
 
-<img src = "screenshots/cs370ss/LostandFoundForum.png" alt = "Forum" width = "200"/>
+<img src = "screenshots/cs370ss/LostandFoundForum.png" alt = "Forum" width = "450"/>
