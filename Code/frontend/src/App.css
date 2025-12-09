@@ -141,6 +141,12 @@ body {
   color: #090C02;
 }
 
+.status-resolved {
+  background: #d7f5e3;
+  color: #1e8f4b;
+  border: 1px solid #1e8f4b;
+}
+
 .filter-section {
   background: white;
   padding: 20px;

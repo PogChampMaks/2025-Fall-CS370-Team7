@@ -6,6 +6,7 @@ import com.example.lostandfound.service.ItemService;
 import com.example.lostandfound.service.FileStorageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,12 +88,25 @@ public class ItemController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteItem(@PathVariable Long id, Principal principal) {
-        if (principal == null) {
+    public ResponseEntity<?> deleteItem(@PathVariable Long id, Principal principal, Authentication authentication) {
+        if (principal == null || authentication == null) {
             return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
         }
-        itemService.deleteItem(id);
-        return ResponseEntity.noContent().build();
+
+        return itemService.getItemById(id)
+            .map(item -> {
+                boolean isOwner = item.getCreatedBy() != null && item.getCreatedBy().equals(principal.getName());
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+                if (!isOwner && !isAdmin) {
+                    return ResponseEntity.status(403).body(Map.of("error", "Only the owner or an admin can delete this item"));
+                }
+
+                itemService.deleteItem(id);
+                return ResponseEntity.noContent().build();
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}/claim")
@@ -135,6 +149,34 @@ public class ItemController {
             item.setClaimed(false);
             item.setClaimedBy(null);
             item.setClaimedAt(null);
+            Item updated = itemService.updateItem(id, item);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}/resolve")
+    public ResponseEntity<?> markAsResolved(@PathVariable Long id, Principal principal, Authentication authentication) {
+        if (principal == null || authentication == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthenticated"));
+        }
+
+        try {
+            Item item = itemService.getItemById(id)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+
+            boolean isOwner = item.getCreatedBy() != null && item.getCreatedBy().equals(principal.getName());
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (!isOwner && !isAdmin) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only the owner or an admin can resolve this item"));
+            }
+
+            item.setStatus(ItemStatus.RESOLVED);
+            item.setClaimed(true);
+            item.setClaimedAt(java.time.LocalDateTime.now());
             Item updated = itemService.updateItem(id, item);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {

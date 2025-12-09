@@ -12,6 +12,9 @@ function ItemDetail({ user }) {
   const [messageContent, setMessageContent] = useState('');
   const [sending, setSending] = useState(false);
 
+  const canDelete = user && (user.role === 'ROLE_ADMIN' || user.username === item?.createdBy);
+  const isResolved = item?.status === 'RESOLVED';
+
   useEffect(() => {
     fetchItem();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,6 +75,28 @@ function ItemDetail({ user }) {
     }
   };
 
+  const markAsResolved = async () => {
+    try {
+      await axios.put(`/api/items/${id}/resolve`);
+      fetchItem();
+      alert('Item marked as resolved!');
+    } catch (err) {
+      alert('Failed to mark as resolved');
+    }
+  };
+
+  const deleteItem = async () => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+
+    try {
+      await axios.delete(`/api/items/${id}`);
+      alert('Item deleted successfully');
+      navigate('/items');
+    } catch (err) {
+      alert('Failed to delete item');
+    }
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ marginTop: '30px' }}>
@@ -105,8 +130,8 @@ function ItemDetail({ user }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '20px' }}>
           <div>
             <h1>{item.title}</h1>
-            <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : 'status-found'}`}>
-              {item.status === 'LOST' ? '🔴 LOST' : '🟢 FOUND'}
+            <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : item.status === 'FOUND' ? 'status-found' : 'status-resolved'}`}>
+              {item.status === 'LOST' ? '🔴 LOST' : item.status === 'FOUND' ? '🟢 FOUND' : '✅ RESOLVED'}
             </span>
             {item.isClaimed && (
               <span style={{ 
@@ -119,6 +144,20 @@ function ItemDetail({ user }) {
                 fontSize: '14px'
               }}>
                 ✓ Claimed/Returned
+              </span>
+            )}
+            {isResolved && (
+              <span style={{
+                display: 'inline-block',
+                marginLeft: '10px',
+                padding: '6px 12px',
+                border: '2px dashed #28a745',
+                color: '#1e8f4b',
+                borderRadius: '10px',
+                fontWeight: '700',
+                letterSpacing: '1px'
+              }}>
+                RESOLVED ✅
               </span>
             )}
           </div>
@@ -209,7 +248,26 @@ function ItemDetail({ user }) {
                     Reopen Item
                   </button>
                 )}
+                {!isResolved && (
+                  <button 
+                    className="btn-secondary"
+                    onClick={markAsResolved}
+                    style={{ backgroundColor: '#1e8f4b', color: 'white' }}
+                  >
+                    ✅ Mark Resolved
+                  </button>
+                )}
               </>
+            )}
+
+            {canDelete && (
+              <button 
+                className="btn-secondary"
+                onClick={deleteItem}
+                style={{ backgroundColor: '#dc3545', color: 'white' }}
+              >
+                🗑️ Delete Item (Admin/Owner)
+              </button>
             )}
           </div>
         )}

@@ -65,6 +65,12 @@ function ItemList() {
           >
             🟢 Found Items
           </button>
+          <button 
+            className={`filter-btn ${status === 'RESOLVED' ? 'active' : ''}`}
+            onClick={() => handleFilter('RESOLVED')}
+          >
+            ✅ Resolved Items
+          </button>
         </div>
       </div>
 
@@ -123,9 +129,24 @@ function ItemList() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
                     <div>
                       <h3 style={{ margin: '0 0 5px 0' }}>{item.title}</h3>
-                      <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : 'status-found'}`}>
-                        {item.status === 'LOST' ? '🔴 LOST' : '🟢 FOUND'}
+                      <span className={`item-status ${item.status === 'LOST' ? 'status-lost' : item.status === 'FOUND' ? 'status-found' : 'status-resolved'}`}>
+                        {item.status === 'LOST' ? '🔴 LOST' : item.status === 'FOUND' ? '🟢 FOUND' : '✅ RESOLVED'}
                       </span>
+                      {item.status === 'RESOLVED' && (
+                        <span style={{
+                          display: 'inline-block',
+                          marginLeft: '10px',
+                          padding: '4px 10px',
+                          border: '2px solid #28a745',
+                          color: '#28a745',
+                          borderRadius: '8px',
+                          fontWeight: '700',
+                          letterSpacing: '1px',
+                          textTransform: 'uppercase'
+                        }}>
+                          RESOLVED
+                        </span>
+                      )}
                       {item.isClaimed && (
                         <span style={{ 
                           display: 'inline-block',

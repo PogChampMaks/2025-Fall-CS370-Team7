@@ -16,6 +16,18 @@ public class DataLoader {
     @Bean
     CommandLineRunner load(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
+            if (userRepository.findByUsername("admin").isEmpty()) {
+                User admin = new User("admin", passwordEncoder.encode("adminpass"), "ROLE_ADMIN", "admin@example.com");
+                userRepository.save(admin);
+                logger.info("Created admin user: username=admin password=adminpass");
+            }
+
+            if (userRepository.findByUsername("user").isEmpty()) {
+                User user = new User("user", passwordEncoder.encode("userpass"), "ROLE_USER", "user@example.com");
+                userRepository.save(user);
+                logger.info("Created default user: username=user password=userpass");
+            }
+
             if (userRepository.findByUsername("user1").isEmpty()) {
                 User user1 = new User("user1", passwordEncoder.encode("userpass"), "ROLE_USER", "user1@example.com");
                 userRepository.save(user1);
