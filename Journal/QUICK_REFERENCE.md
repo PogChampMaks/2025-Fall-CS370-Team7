@@ -1,19 +1,56 @@
 # Quick Reference Guide
 
-## 🚀 Starting the App (Every Time)
+## Starting the App (Every Time)
 
-### Terminal 1: Backend
-```bash
-cd C:\Users\devin\OneDrive\Desktop\CS370LostAndFound\Code
-C:\Users\devin\apache-maven-3.9.4\bin\mvn spring-boot:run
+### Fastest Start (Windows)
+```powershell
+cd Code
+.\start-all.ps1
 ```
 
-### Terminal 2: Frontend  
+Alternative launcher:
+```bat
+Code\start-all.bat
+```
+
+Optional flags:
+- `-SkipInstall` skips `npm install` check
+- `-DryRun` prints commands without launching terminals
+
+### Prerequisites (one-time setup)
+- Java 17+
+- Node.js 18+ (includes npm)
+
+Maven is not required globally for this project because it uses Maven Wrapper.
+
+### Quick Manual Start (any OS)
+Backend:
 ```bash
-cd C:\Users\devin\OneDrive\Desktop\CS370LostAndFound\Code\frontend
+cd Code
+# macOS/Linux:
+./mvnw spring-boot:run
+
+# Windows PowerShell:
+.\mvnw.cmd spring-boot:run
+```
+
+Frontend:
+```bash
+cd Code/frontend
 npm install  # (only first time)
 npm start
 ```
+
+### Stop the App
+```powershell
+Get-Process -Name java -ErrorAction SilentlyContinue | Stop-Process -Force
+# Frontend: Ctrl+C in its terminal
+```
+
+### Startup Troubleshooting
+- If backend command fails, run `.\mvnw.cmd -v` from `Code` and confirm Java is installed.
+- If frontend fails, run `npm -v` and `node -v` from `Code/frontend`.
+- If ports are busy, close old terminals and retry.
 
 Then open browser to:
 - **Frontend:** http://localhost:3000
@@ -21,14 +58,14 @@ Then open browser to:
 - **Backend Home/Docs:** http://localhost:8080/
 - **Database Console:** http://localhost:8080/h2-console
 
-## 🔐 Login Credentials
+## Login Credentials
 
 | Account | Username | Password |
 |---------|----------|----------|
 | Admin | admin | adminpass |
 | User | user | userpass |
 
-## 📋 Features to Test
+## Features to Test
 
 1. **View Home Page** - http://localhost:3000
 2. **Browse Items** - Click "Browse Items" button
@@ -43,7 +80,7 @@ Then open browser to:
 11. **Mark as Claimed** - Item owners can mark items as claimed/returned
 12. **See Posted Item** - Item appears in list with claimed status if applicable
 
-## 🔗 Frontend Pages
+## Frontend Pages
 
 | URL | Page | What It Does |
 |-----|------|-------------|
@@ -54,7 +91,7 @@ Then open browser to:
 | `/post-item` | Post | Create new item with image upload (auth required) |
 | `/messages` | Messages | View and send messages about items (auth required) |
 
-## 🔌 Backend API Endpoints (for testing)
+## Backend API Endpoints (for testing)
 
 ### Public Endpoints (No Login)
 ```
@@ -82,7 +119,7 @@ GET http://localhost:8080/api/messages/unread/count
 PUT http://localhost:8080/api/messages/1/read
 ```
 
-## 💡 Common Tasks
+## Common Tasks
 
 ### Post a New Item via Frontend
 1. Click "Post Item" in navbar
@@ -127,7 +164,7 @@ Get-Process -Name java | Stop-Process -Force  # Stop backend
 # Frontend (Ctrl+C in terminal)
 ```
 
-## 📝 File Locations
+## File Locations
 
 **Backend Files:**
 - Main App: `Code/src/main/java/com/example/lostandfound/LostAndFoundApplication.java`
@@ -141,7 +178,7 @@ Get-Process -Name java | Stop-Process -Force  # Stop backend
 - Components: `Code/frontend/src/components/`
 - Styles: `Code/frontend/src/App.css`
 
-## 🐛 Debugging
+## Debugging
 
 **Backend not responding?**
 - Check terminal for errors
@@ -163,26 +200,6 @@ Get-Process -Name java | Stop-Process -Force  # Stop backend
 - Check if logged in user created it
 - Try going to `/items?status=FOUND`
 
-## 📚 Project Status
-
-✅ Completed:
-- Backend API with authentication
-- React frontend with all pages
-- Database models
-- Item CRUD operations
-- Item filtering and search
-- Image upload functionality (up to 5MB)
-- Spring Boot upgraded to 3.5.8
-- In-app messaging system
-- Item claim/return workflow
-
-⚠️ Optional Features Not Yet Done:
-- Email notifications
-- Unit/integration tests
-- Production deployment
-
-## 🎯 For Your Instructor
-
 This is a **complete full-stack application** showing:
 - Spring Boot REST API design
 - React SPA development
@@ -199,5 +216,3 @@ All code is clean, documented, and follows best practices!
 
 ---
 
-**Last Updated:** November 26, 2025
->>>>>>> 9203e2b (Add messaging system and item claim/return workflow)
